@@ -1,37 +1,50 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import { useState } from 'react';
+import { useReducer } from 'react';
 import * as math from 'mathjs';
 import Screen from './components/screen';
 import Button from './components/buttons';
 import Clear from './components/clear';
 
+
+const reducer = (state, action) => {
+  switch(action.type) {
+    case 'ADD':
+      return {exp: state.exp + action.value, result: state.result};
+    case 'RESULT':
+      return {exp: state.exp, result: math.evaluate(state.exp)};
+    case 'CLEAR':
+      return {exp: "", result: ""};
+    default:
+      return state;
+  }
+}
+
 const Calculator = () => {
+  const [state, dispatch] = useReducer(reducer, {exp: "", result: ""});
   
-  const [result, setResult] = useState("");
-  const [exp, setExp] = useState("");
-  
-  const addToExpression = (value) => {
-    setExp(
-      exp =>  exp + value
+  const addToExpression = (val) => {
+    dispatch(
+      {type: 'ADD', value: val}
     );
   }
 
   const calculate = () => {
-    setResult(
-      math.evaluate(exp)
+    dispatch(
+      {type: 'RESULT'}
     );
   }
 
   const handleClear = () => {
-    setResult("");
-    setExp("");
+    dispatch(
+      {type: 'CLEAR'}
+    );
   }
 
   return (
     <div className="calculator">
-      <Screen exp={exp} result={result} />
+      <Screen exp={state.exp} result={state.result} />
 
       <div className="button-div">
         <Button value={"7"} handleClick={addToExpression} />
